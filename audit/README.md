@@ -1,5 +1,5 @@
 ## Audit linux vm :heavy_exclamation_mark:
-- os-releae
+- os-release
 - hostname
 - network config
 - ntp
@@ -14,9 +14,9 @@
 
 **Run playbook**
 ```
-ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i 'ip-addr,' playbook.yaml -u username --ask-pass --ssh-extra-args='-o IdentitiesOnly=yes -o HostKeyAlgorithms=+ssh-rsa'
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i 'vm-ip-addr,' playbook.yaml -u username --ask-pass --ssh-extra-args='-o IdentitiesOnly=yes -o HostKeyAlgorithms=+ssh-rsa'
 ```
-need enter username password
+*need enter username password
 
 **Example**
 ```
