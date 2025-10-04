@@ -1,0 +1,72 @@
+---
+- name: Collect system information
+  hosts: all
+  gather_facts: no
+
+  vars:
+    output_dir: "./vms_info"
+
+  tasks:
+    - name: List of commands
+      set_fact:
+        commands:
+          - "cat /etc/redhat-release || cat /etc/*-release"
+          - "cat /etc/hostname"
+          - "ip a || ifconfig -a"
+          - "route || route -n || netstat -rn"
+          - "ntpq -p"
+          - "cat /etc/resolv.conf"
+          - "ls -la /home"
+          - |
+            echo "===== /etc/crontab ====="; cat /etc/crontab; echo;
+            echo "===== /etc/cron.d ====="; grep -r "" /etc/cron.d;
+            for d in hourly daily weekly monthly; do
+              echo; echo "===== /etc/cron.$d =====";
+              for f in /etc/cron.$d/*; do
+                [ -f "$f" ] && echo "### $f ###" && cat "$f";
+              done;
+            done;
+            echo; echo "===== /var/spool/cron (user crons) ====="; grep -r "" /var/spool/cron/
+          - "ss -tulpn | awk 'NR>1 {proc=\"\"; for(i=6;i<=NF;i++){proc=proc $i \" \"} print $1, $5, proc}' || netstat -an | grep LISTEN"
+          - "systemctl list-unit-files --type=service | grep enabled || svcs -a || true"
+          - "firewall-cmd --list-all || echo 'firewalld not running'"
+          - "iptables -L -n -v || ipfstat -io"
+          - "cat /etc/sysctl.conf || cat /etc/system"
+          - "lsblk"
+          - "df -h"
+          - "docker ps -a || echo 'docker not installed'"
+          - "systemctl list-units --type=service | grep -Ei 'vpn|wireguard|strongswan|xl2tp|pptp' || true"
+
+    - name: Run all commands and collect output
+      shell: "{{ item }}"
+      register: command_output
+      loop: "{{ commands }}"
+      ignore_errors: yes
+      failed_when: false
+
+    - name: Combine all outputs into one text
+      set_fact:
+        all_results: |
+          {% for result in command_output.results %}
+          ===== COMMAND: {{ result.item }} =====
+          {{ result.stdout | default('') }}
+          {% if result.stderr | default('') != '' %}
+          STDERR: {{ result.stderr | default('') }}
+          {% endif %}
+
+          {% endfor %}
+
+    - name: Ensure output directory exists on control node
+      file:
+        path: "{{ output_dir }}"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+
+    - name: Save results to control node
+      copy:
+        content: "{{ all_results }}"
+        dest: "{{ output_dir }}/{{ inventory_hostname }}.txt"
+      delegate_to: localhost
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
