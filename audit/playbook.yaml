@@ -28,7 +28,7 @@
             done;
             echo; echo "===== /var/spool/cron (user crons) ====="; grep -r "" /var/spool/cron/
           - "ss -tulpn | awk 'NR>1 {proc=\"\"; for(i=6;i<=NF;i++){proc=proc $i \" \"} print $1, $5, proc}' || netstat -an | grep LISTEN"
-          - "systemctl list-unit-files --type=service | grep enabled || svcs -a || true"
+          - "systemctl list-unit-files --type=service | grep enabled || svcs -a || service -e || true"
           - "firewall-cmd --list-all || echo 'firewalld not running'"
           - "iptables -L -n -v || ipfstat -io"
           - "cat /etc/sysctl.conf || cat /etc/system"
