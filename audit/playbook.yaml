@@ -32,7 +32,7 @@
           - "firewall-cmd --list-all || echo 'firewalld not running'"
           - "iptables -L -n -v || ipfstat -io"
           - "cat /etc/sysctl.conf || cat /etc/system"
-          - "lsblk"
+          - "lsblk || geom disk list"
           - "df -h"
           - "docker ps -a || echo 'docker not installed'"
           - "cat /etc/nginx/nginx.conf || true"
