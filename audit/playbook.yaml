@@ -10,7 +10,7 @@
     - name: List of commands
       set_fact:
         commands:
-          - "cat /etc/redhat-release || cat /etc/*-release"
+          - "cat /etc/*-release"
           - "cat /etc/hostname"
           - "ip a || ifconfig -a"
           - "route || route -n || netstat -rn"
@@ -35,6 +35,7 @@
           - "lsblk"
           - "df -h"
           - "docker ps -a || echo 'docker not installed'"
+          - "cat /etc/nginx/nginx.conf || true"
           - "systemctl list-units --type=service | grep -Ei 'vpn|wireguard|strongswan|xl2tp|pptp' || true"
 
     - name: Run all commands and collect output
