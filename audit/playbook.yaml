@@ -14,7 +14,7 @@
           - "cat /etc/hostname"
           - "ip a || ifconfig -a"
           - "route || route -n || netstat -rn"
-          - "ntpq -p"
+          - "ntpq -p || timedatectl show-timesync --all"
           - "cat /etc/resolv.conf"
           - "ls -la /home"
           - |
